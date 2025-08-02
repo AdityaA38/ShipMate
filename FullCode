@@ -1,6 +1,5 @@
 
 
-// MARK: - API Error Types
 enum APIError: Error {
     case invalidURL
     case noData
@@ -10,7 +9,6 @@ enum APIError: Error {
     case apiError(String)
 }
 
-// MARK: - Home Screen View
 struct HomeScreenView: View {
     @EnvironmentObject var appState: AppState
     @State private var showingFeatures = false
@@ -24,7 +22,6 @@ struct HomeScreenView: View {
                     Spacer()
                         .frame(height: 60)
                     
-                    // Logo and Title
                     VStack(spacing: 20) {
                         ZStack {
                             Circle()
@@ -62,7 +59,6 @@ struct HomeScreenView: View {
                         }
                     }
                     
-                    // Key Features
                     VStack(spacing: 24) {
                         FeatureCard(
                             icon: "brain.head.profile",
@@ -93,7 +89,6 @@ struct HomeScreenView: View {
                         )
                     }
                     
-                    // Call to Action
                     VStack(spacing: 20) {
                         Button(action: {
                             withAnimation(.spring(duration: 0.6)) {
@@ -143,7 +138,6 @@ struct HomeScreenView: View {
     }
 }
 
-// MARK: - Animated Background
 struct AnimatedBackgroundView: View {
     @State private var animate = false
     
@@ -183,7 +177,6 @@ struct AnimatedBackgroundView: View {
     }
 }
 
-// MARK: - Feature Card
 struct FeatureCard: View {
     let icon: String
     let title: String
@@ -236,7 +229,6 @@ struct FeatureCard: View {
     }
 }
 
-// MARK: - Main Content View
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @State private var selectedTab = 0
@@ -281,7 +273,6 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Dashboard View
 struct DashboardView: View {
     @EnvironmentObject var appState: AppState
     
@@ -289,7 +280,6 @@ struct DashboardView: View {
         NavigationView {
             ScrollView {
                 LazyVStack(spacing: 20) {
-                    // Welcome Header
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             VStack(alignment: .leading) {
@@ -316,20 +306,16 @@ struct DashboardView: View {
                     }
                     .padding(.horizontal)
                     
-                    // Quick Stats
                     if let currentProject = appState.currentProject {
                         QuickStatsView(project: currentProject)
                     }
                     
-                    // Current Project Card
                     if let currentProject = appState.currentProject {
                         CurrentProjectCard(project: currentProject)
                     }
                     
-                    // AI Strategy Section
                     AIStrategyPromptCard()
                     
-                    // Recent Community Activity
                     RecentCommunityCard()
                 }
                 .padding(.vertical)
@@ -340,7 +326,6 @@ struct DashboardView: View {
     }
 }
 
-// MARK: - Quick Stats View
 struct QuickStatsView: View {
     let project: AppProject
     
@@ -398,7 +383,6 @@ struct StatCard: View {
     }
 }
 
-// MARK: - Current Project Card
 struct CurrentProjectCard: View {
     let project: AppProject
     @EnvironmentObject var appState: AppState
@@ -430,7 +414,6 @@ struct CurrentProjectCard: View {
                 }
             }
             
-            // Progress Bar
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("Progress")
@@ -450,7 +433,6 @@ struct CurrentProjectCard: View {
                     .scaleEffect(x: 1, y: 2, anchor: .center)
             }
             
-            // Action Buttons
             HStack(spacing: 12) {
                 Button(action: {
                     appState.generateLaunchStrategy(for: project)
@@ -494,7 +476,6 @@ struct CurrentProjectCard: View {
     }
 }
 
-// MARK: - AI Strategy Prompt Card
 struct AIStrategyPromptCard: View {
     @EnvironmentObject var appState: AppState
     
@@ -561,7 +542,6 @@ struct AIStrategyPromptCard: View {
     }
 }
 
-// MARK: - Recent Community Card
 struct RecentCommunityCard: View {
     @EnvironmentObject var appState: AppState
     
@@ -605,7 +585,6 @@ struct RecentCommunityCard: View {
     }
 }
 
-// MARK: - Projects View
 struct ProjectsView: View {
     @EnvironmentObject var appState: AppState
     
@@ -632,7 +611,6 @@ struct ProjectsView: View {
     
     func deleteProjects(offsets: IndexSet) {
         appState.projects.remove(atOffsets: offsets)
-        // Clear current project if it was deleted
         if let currentProject = appState.currentProject,
            offsets.contains(appState.projects.firstIndex(where: { $0.id == currentProject.id }) ?? -1) {
             appState.currentProject = appState.projects.first
@@ -640,7 +618,6 @@ struct ProjectsView: View {
     }
 }
 
-// MARK: - Project Detail View
 struct ProjectDetailView: View {
     let project: AppProject
     @EnvironmentObject var appState: AppState
@@ -649,7 +626,6 @@ struct ProjectDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Project Header
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Image(systemName: project.category.icon)
@@ -681,7 +657,6 @@ struct ProjectDetailView: View {
                         .font(.body)
                         .foregroundColor(.secondary)
                     
-                    // Stats Row
                     HStack(spacing: 20) {
                         VStack {
                             Text("$\(Int(project.revenue))")
@@ -730,7 +705,6 @@ struct ProjectDetailView: View {
                 .background(Color(.systemGray6))
                 .cornerRadius(16)
                 
-                // Action Buttons
                 HStack(spacing: 12) {
                     Button(action: {
                         appState.currentProject = project
@@ -761,7 +735,6 @@ struct ProjectDetailView: View {
                     }
                 }
                 
-                // Tasks Section
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         Text("Launch Tasks")
@@ -854,7 +827,6 @@ struct ProjectDetailView: View {
     }
 }
 
-// MARK: - Project Task Row
 struct ProjectTaskRow: View {
     let task: LaunchTask
     let onToggle: () -> Void
@@ -924,13 +896,11 @@ struct ProjectTaskRow: View {
     }
 }
 
-// MARK: - Project Row
 struct ProjectRow: View {
     let project: AppProject
     
     var body: some View {
         HStack {
-            // Category Icon
             Image(systemName: project.category.icon)
                 .font(.title2)
                 .foregroundColor(project.category.color)
@@ -973,7 +943,6 @@ struct ProjectRow: View {
     }
 }
 
-// MARK: - Community View
 struct CommunityView: View {
     @EnvironmentObject var appState: AppState
     @State private var showingNewPost = false
@@ -1000,7 +969,6 @@ struct CommunityView: View {
     }
 }
 
-// MARK: - Community Post Row
 struct CommunityPostRow: View {
     let post: CommunityPost
     let isCompact: Bool
@@ -1061,7 +1029,6 @@ struct CommunityPostRow: View {
     }
 }
 
-// MARK: - Analytics View
 struct AnalyticsView: View {
     @EnvironmentObject var appState: AppState
     
@@ -1070,7 +1037,6 @@ struct AnalyticsView: View {
             ScrollView {
                 LazyVStack(spacing: 20) {
                     if let project = appState.currentProject {
-                        // Revenue Chart
                         AnalyticsCard(
                             title: "Revenue Trend",
                             icon: "chart.line.uptrend.xyaxis",
@@ -1079,7 +1045,6 @@ struct AnalyticsView: View {
                             RevenueChartView(project: project)
                         }
                         
-                        // Downloads Chart
                         AnalyticsCard(
                             title: "Downloads",
                             icon: "arrow.down.circle",
@@ -1088,7 +1053,6 @@ struct AnalyticsView: View {
                             DownloadsChartView(project: project)
                         }
                         
-                        // Key Metrics
                         AnalyticsCard(
                             title: "Key Metrics",
                             icon: "speedometer",
@@ -1125,7 +1089,6 @@ struct AnalyticsView: View {
     }
 }
 
-// MARK: - Analytics Card
 struct AnalyticsCard<Content: View>: View {
     let title: String
     let icon: String
@@ -1161,7 +1124,6 @@ struct AnalyticsCard<Content: View>: View {
     }
 }
 
-// MARK: - Chart Views
 struct RevenueChartView: View {
     let project: AppProject
     
@@ -1176,7 +1138,6 @@ struct RevenueChartView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
-            // Simple mock chart
             RoundedRectangle(cornerRadius: 4)
                 .fill(LinearGradient(colors: [.green.opacity(0.3), .green.opacity(0.1)], startPoint: .top, endPoint: .bottom))
                 .frame(height: 100)
@@ -1203,7 +1164,6 @@ struct DownloadsChartView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
-            // Simple mock chart
             RoundedRectangle(cornerRadius: 4)
                 .fill(LinearGradient(colors: [.blue.opacity(0.3), .blue.opacity(0.1)], startPoint: .top, endPoint: .bottom))
                 .frame(height: 100)
@@ -1251,7 +1211,6 @@ struct MetricRow: View {
     }
 }
 
-// MARK: - New Project View
 struct NewProjectView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
@@ -1259,7 +1218,7 @@ struct NewProjectView: View {
     @State private var name = ""
     @State private var description = ""
     @State private var selectedCategory = AppCategory.productivity
-    @State private var targetLaunchDate = Date().addingTimeInterval(60 * 60 * 24 * 30) // 30 days from now
+    @State private var targetLaunchDate = Date().addingTimeInterval(60 * 60 * 24 * 30) 
     
     var body: some View {
         NavigationView {
@@ -1323,7 +1282,6 @@ struct NewProjectView: View {
     }
 }
 
-// MARK: - AI Strategy View
 struct AIStrategyView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
@@ -1334,7 +1292,6 @@ struct AIStrategyView: View {
             ScrollView {
                 if let strategy = appState.currentStrategy {
                     LazyVStack(alignment: .leading, spacing: 20) {
-                        // Header
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Image(systemName: "sparkles")
@@ -1354,7 +1311,6 @@ struct AIStrategyView: View {
                         }
                         .padding(.horizontal)
                         
-                        // Success banner
                         if showingTasksAdded {
                             HStack {
                                 Image(systemName: "checkmark.circle.fill")
@@ -1373,7 +1329,6 @@ struct AIStrategyView: View {
                             .padding(.horizontal)
                         }
                         
-                        // Marketing Tactics
                         StrategySection(
                             title: "Marketing Tactics",
                             icon: "megaphone.fill",
@@ -1381,7 +1336,6 @@ struct AIStrategyView: View {
                             items: strategy.marketingTactics
                         )
                         
-                        // Pricing Strategy
                         StrategySingleSection(
                             title: "Pricing Strategy",
                             icon: "dollarsign.circle.fill",
@@ -1389,7 +1343,6 @@ struct AIStrategyView: View {
                             content: strategy.pricingStrategy
                         )
                         
-                        // Timeline
                         StrategySection(
                             title: "Launch Timeline",
                             icon: "calendar",
@@ -1397,7 +1350,6 @@ struct AIStrategyView: View {
                             items: strategy.timeline
                         )
                         
-                        // Key Metrics
                         StrategySection(
                             title: "Key Metrics to Track",
                             icon: "chart.bar.fill",
@@ -1405,7 +1357,6 @@ struct AIStrategyView: View {
                             items: strategy.keyMetrics
                         )
                         
-                        // Competitor Analysis
                         StrategySingleSection(
                             title: "Competitor Analysis",
                             icon: "eye.fill",
@@ -1413,7 +1364,6 @@ struct AIStrategyView: View {
                             content: strategy.competitorAnalysis
                         )
                         
-                        // Risk Factors
                         StrategySection(
                             title: "Risk Factors",
                             icon: "exclamationmark.triangle.fill",
@@ -1421,7 +1371,6 @@ struct AIStrategyView: View {
                             items: strategy.riskFactors
                         )
                         
-                        // Action Buttons
                         HStack(spacing: 12) {
                             Button(action: {
                                 if let currentProject = appState.currentProject {
@@ -1481,7 +1430,6 @@ struct AIStrategyView: View {
     }
 }
 
-// MARK: - Strategy Section Views
 struct StrategySection: View {
     let title: String
     let icon: String
@@ -1554,7 +1502,6 @@ struct StrategySingleSection: View {
     }
 }
 
-// MARK: - New Task View
 struct NewTaskView: View {
     let projectId: UUID
     @EnvironmentObject var appState: AppState
@@ -1565,7 +1512,7 @@ struct NewTaskView: View {
     @State private var selectedPriority = LaunchTask.TaskPriority.medium
     @State private var category = "Marketing"
     @State private var hasDueDate = false
-    @State private var dueDate = Date().addingTimeInterval(7 * 24 * 60 * 60) // 1 week from now
+    @State private var dueDate = Date().addingTimeInterval(7 * 24 * 60 * 60) 
     
     private let categories = ["Marketing", "Development", "Testing", "Design", "Legal", "Analytics", "Community"]
     
@@ -1640,7 +1587,6 @@ struct NewTaskView: View {
             category: category
         )
         
-        // Find the project and add the task
         if let projectIndex = appState.projects.firstIndex(where: { $0.id == projectId }) {
             appState.projects[projectIndex].tasks.append(task)
             print("✅ Added task '\(title)' to project '\(appState.projects[projectIndex].name)'")
@@ -1650,7 +1596,6 @@ struct NewTaskView: View {
     }
 }
 
-// MARK: - New Post View
 struct NewPostView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
@@ -1706,7 +1651,7 @@ struct NewPostView: View {
     
     private func createPost() {
         let post = CommunityPost(
-            author: "You", // In a real app, this would be the current user
+            author: "You", 
             content: content,
             timestamp: Date(),
             likes: 0,
@@ -1720,13 +1665,11 @@ struct NewPostView: View {
     }
 }
 
-// MARK: - Custom Styles and Extensions
 extension Color {
     static let shipMateBlue = Color(red: 0.0, green: 0.48, blue: 1.0)
     static let shipMatePurple = Color(red: 0.5, green: 0.0, blue: 1.0)
 }
 
-// MARK: - Preview Support
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
@@ -1737,10 +1680,8 @@ struct ContentView_Previews: PreviewProvider {
 import Foundation
 import Combine
 
-// MARK: - App Entry Point
 
 
-// MARK: - Models
 struct AppProject: Identifiable, Codable {
     let id = UUID()
     var name: String
@@ -1882,7 +1823,6 @@ struct CommunityPost: Identifiable, Codable {
     let isLaunchAnnouncement: Bool
 }
 
-// MARK: - App State
 class AppState: ObservableObject {
     @Published var projects: [AppProject] = []
     @Published var currentProject: AppProject?
@@ -1932,7 +1872,6 @@ class AppState: ObservableObject {
         
         var newTasks: [LaunchTask] = []
         
-        // Add marketing tasks
         for (index, tactic) in strategy.marketingTactics.enumerated() {
             let task = LaunchTask(
                 title: "Marketing: \(String(tactic.prefix(40)))",
@@ -1945,7 +1884,6 @@ class AppState: ObservableObject {
             newTasks.append(task)
         }
         
-        // Add timeline tasks
         for (index, timelineItem) in strategy.timeline.enumerated() {
             let task = LaunchTask(
                 title: "Timeline: \(String(timelineItem.prefix(40)))",
@@ -1958,7 +1896,6 @@ class AppState: ObservableObject {
             newTasks.append(task)
         }
         
-        // Add a pricing task
         let pricingTask = LaunchTask(
             title: "Implement Pricing Strategy",
             description: strategy.pricingStrategy,
@@ -1969,7 +1906,6 @@ class AppState: ObservableObject {
         )
         newTasks.append(pricingTask)
         
-        // Add analytics setup tasks
         for metric in strategy.keyMetrics {
             let task = LaunchTask(
                 title: "Setup: \(String(metric.prefix(30)))",
@@ -1982,10 +1918,8 @@ class AppState: ObservableObject {
             newTasks.append(task)
         }
         
-        // Actually add the tasks to the project
         projects[projectIndex].tasks.append(contentsOf: newTasks)
         
-        // Force UI update
         objectWillChange.send()
         
         print("✅ Added \(newTasks.count) tasks from AI strategy to \(projectName)")
@@ -2020,9 +1954,8 @@ class AppState: ObservableObject {
     }
 }
 
-// MARK: - Gemini AI Service
 class GeminiAIService: ObservableObject {
-    private let apiKey = "AIzaSyA2b4ObUX2rkIeHLlessAGRi6F0GBSi65k"
+    private let apiKey = "Import own key"
     private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
     
     func generateLaunchStrategy(for project: AppProject) async throws -> LaunchStrategy {
@@ -2260,7 +2193,6 @@ class GeminiAIService: ObservableObject {
             }
         }
         
-        // Use fallbacks if parsing failed
         if marketingTactics.isEmpty {
             marketingTactics = getFallbackMarketing(for: project.category)
         }
@@ -2297,7 +2229,6 @@ class GeminiAIService: ObservableObject {
         )
     }
     
-    // MARK: - Fallback Methods
     private func generateFallbackStrategy(for project: AppProject) -> LaunchStrategy {
         print("🔄 Using fallback strategy generation")
         
