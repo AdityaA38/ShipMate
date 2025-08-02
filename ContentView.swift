@@ -1,0 +1,2499 @@
+
+
+// MARK: - API Error Types
+enum APIError: Error {
+    case invalidURL
+    case noData
+    case decodingError
+    case noAPIKey
+    case noContent
+    case apiError(String)
+}
+
+// MARK: - Home Screen View
+struct HomeScreenView: View {
+    @EnvironmentObject var appState: AppState
+    @State private var showingFeatures = false
+    
+    var body: some View {
+        ZStack {
+            AnimatedBackgroundView()
+            
+            ScrollView {
+                VStack(spacing: 40) {
+                    Spacer()
+                        .frame(height: 60)
+                    
+                    // Logo and Title
+                    VStack(spacing: 20) {
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [.blue, .purple],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 120, height: 120)
+                                .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
+                            
+                            Image(systemName: "rocket.fill")
+                                .font(.system(size: 50))
+                                .foregroundColor(.white)
+                        }
+                        
+                        VStack(spacing: 8) {
+                            Text("ShipMate")
+                                .font(.system(size: 48, weight: .bold, design: .rounded))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.white, .blue.opacity(0.8)],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                            
+                            Text("Your AI-Powered App Launch Companion")
+                                .font(.title3)
+                                .fontWeight(.medium)
+                                .foregroundColor(.gray)
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+                    
+                    // Key Features
+                    VStack(spacing: 24) {
+                        FeatureCard(
+                            icon: "brain.head.profile",
+                            title: "AI Launch Strategies",
+                            description: "Get personalized marketing plans, pricing strategies, and launch timelines powered by AI",
+                            color: .purple
+                        )
+                        
+                        FeatureCard(
+                            icon: "person.3.fill",
+                            title: "Developer Community",
+                            description: "Connect with indie developers, share launches, and learn from successful app creators",
+                            color: .blue
+                        )
+                        
+                        FeatureCard(
+                            icon: "chart.line.uptrend.xyaxis",
+                            title: "Launch Analytics",
+                            description: "Track your app's performance with detailed metrics and insights to optimize growth",
+                            color: .green
+                        )
+                        
+                        FeatureCard(
+                            icon: "list.bullet.clipboard",
+                            title: "Project Management",
+                            description: "Organize your app development journey from idea to App Store with smart task management",
+                            color: .orange
+                        )
+                    }
+                    
+                    // Call to Action
+                    VStack(spacing: 20) {
+                        Button(action: {
+                            withAnimation(.spring(duration: 0.6)) {
+                                appState.completeOnboarding()
+                            }
+                        }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "rocket.fill")
+                                    .font(.title2)
+                                Text("Start Shipping")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(
+                                LinearGradient(
+                                    colors: [.blue, .purple],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .cornerRadius(16)
+                            .shadow(color: .blue.opacity(0.3), radius: 15, x: 0, y: 5)
+                        }
+                        .scaleEffect(showingFeatures ? 1.0 : 0.9)
+                        .animation(.spring(duration: 0.8, bounce: 0.3), value: showingFeatures)
+                        
+                        Text("Join thousands of indie developers building successful apps")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    Spacer()
+                        .frame(height: 40)
+                }
+                .padding(.horizontal, 24)
+            }
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.0)) {
+                showingFeatures = true
+            }
+        }
+    }
+}
+
+// MARK: - Animated Background
+struct AnimatedBackgroundView: View {
+    @State private var animate = false
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            ForEach(0..<15, id: \.self) { index in
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.blue.opacity(0.1), .purple.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: CGFloat.random(in: 20...80))
+                    .position(
+                        x: CGFloat.random(in: 0...400),
+                        y: CGFloat.random(in: 0...800)
+                    )
+                    .offset(
+                        x: animate ? CGFloat.random(in: -50...50) : 0,
+                        y: animate ? CGFloat.random(in: -50...50) : 0
+                    )
+                    .animation(
+                        .easeInOut(duration: Double.random(in: 3...6))
+                        .repeatForever(autoreverses: true)
+                        .delay(Double.random(in: 0...2)),
+                        value: animate
+                    )
+            }
+        }
+        .onAppear {
+            animate = true
+        }
+    }
+}
+
+// MARK: - Feature Card
+struct FeatureCard: View {
+    let icon: String
+    let title: String
+    let description: String
+    let color: Color
+    @State private var isVisible = false
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.15))
+                    .frame(width: 60, height: 60)
+                
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundColor(color)
+            }
+            
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.leading)
+            }
+            
+            Spacer()
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemGray6).opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(color.opacity(0.2), lineWidth: 1)
+                )
+        )
+        .scaleEffect(isVisible ? 1.0 : 0.8)
+        .opacity(isVisible ? 1.0 : 0.0)
+        .onAppear {
+            withAnimation(.spring(duration: 0.6, bounce: 0.3).delay(0.1)) {
+                isVisible = true
+            }
+        }
+    }
+}
+
+// MARK: - Main Content View
+struct ContentView: View {
+    @EnvironmentObject var appState: AppState
+    @State private var selectedTab = 0
+    
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            DashboardView()
+                .tabItem {
+                    Image(systemName: "house.fill")
+                    Text("Dashboard")
+                }
+                .tag(0)
+            
+            ProjectsView()
+                .tabItem {
+                    Image(systemName: "folder.fill")
+                    Text("Projects")
+                }
+                .tag(1)
+            
+            CommunityView()
+                .tabItem {
+                    Image(systemName: "person.3.fill")
+                    Text("Community")
+                }
+                .tag(2)
+            
+            AnalyticsView()
+                .tabItem {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                    Text("Analytics")
+                }
+                .tag(3)
+        }
+        .accentColor(.blue)
+        .sheet(isPresented: $appState.showingNewProject) {
+            NewProjectView()
+        }
+        .sheet(isPresented: $appState.showingAIStrategy) {
+            AIStrategyView()
+        }
+    }
+}
+
+// MARK: - Dashboard View
+struct DashboardView: View {
+    @EnvironmentObject var appState: AppState
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                LazyVStack(spacing: 20) {
+                    // Welcome Header
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("Welcome back! 👋")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                
+                                Text("Ready to ship something amazing?")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Button(action: { appState.showingNewProject = true }) {
+                                Image(systemName: "plus")
+                                    .font(.title2)
+                                    .foregroundColor(.white)
+                                    .frame(width: 40, height: 40)
+                                    .background(Color.blue)
+                                    .clipShape(Circle())
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    // Quick Stats
+                    if let currentProject = appState.currentProject {
+                        QuickStatsView(project: currentProject)
+                    }
+                    
+                    // Current Project Card
+                    if let currentProject = appState.currentProject {
+                        CurrentProjectCard(project: currentProject)
+                    }
+                    
+                    // AI Strategy Section
+                    AIStrategyPromptCard()
+                    
+                    // Recent Community Activity
+                    RecentCommunityCard()
+                }
+                .padding(.vertical)
+            }
+            .navigationTitle("ShipMate")
+            .navigationBarTitleDisplayMode(.large)
+        }
+    }
+}
+
+// MARK: - Quick Stats View
+struct QuickStatsView: View {
+    let project: AppProject
+    
+    var body: some View {
+        HStack(spacing: 20) {
+            StatCard(
+                title: "Revenue",
+                value: "$\(Int(project.revenue))",
+                icon: "dollarsign.circle.fill",
+                color: .green
+            )
+            
+            StatCard(
+                title: "Downloads",
+                value: "\(project.downloads)",
+                icon: "arrow.down.circle.fill",
+                color: .blue
+            )
+            
+            StatCard(
+                title: "Phase",
+                value: project.currentPhase.rawValue,
+                icon: "chart.line.uptrend.xyaxis.circle.fill",
+                color: project.currentPhase.color
+            )
+        }
+        .padding(.horizontal)
+    }
+}
+
+struct StatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(color)
+            
+            Text(value)
+                .font(.headline)
+                .fontWeight(.semibold)
+            
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+    }
+}
+
+// MARK: - Current Project Card
+struct CurrentProjectCard: View {
+    let project: AppProject
+    @EnvironmentObject var appState: AppState
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(project.name)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                    
+                    Label(project.category.rawValue, systemImage: project.category.icon)
+                        .font(.subheadline)
+                        .foregroundColor(project.category.color)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Launch in")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Text("\(daysUntilLaunch) days")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                }
+            }
+            
+            // Progress Bar
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Progress")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    
+                    Spacer()
+                    
+                    Text("\(Int(project.currentPhase.progress * 100))%")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(project.currentPhase.color)
+                }
+                
+                ProgressView(value: project.currentPhase.progress)
+                    .progressViewStyle(LinearProgressViewStyle(tint: project.currentPhase.color))
+                    .scaleEffect(x: 1, y: 2, anchor: .center)
+            }
+            
+            // Action Buttons
+            HStack(spacing: 12) {
+                Button(action: {
+                    appState.generateLaunchStrategy(for: project)
+                }) {
+                    HStack {
+                        Image(systemName: "sparkles")
+                        Text("AI Strategy")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                .disabled(appState.isGeneratingStrategy)
+                
+                NavigationLink(destination: ProjectDetailView(project: project)) {
+                    HStack {
+                        Image(systemName: "folder.fill")
+                        Text("View Project")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color(.systemGray5))
+                    .foregroundColor(.primary)
+                    .cornerRadius(8)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(16)
+        .padding(.horizontal)
+    }
+    
+    private var daysUntilLaunch: Int {
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.day], from: now, to: project.targetLaunchDate)
+        return max(0, components.day ?? 0)
+    }
+}
+
+// MARK: - AI Strategy Prompt Card
+struct AIStrategyPromptCard: View {
+    @EnvironmentObject var appState: AppState
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "brain.head.profile")
+                    .font(.title2)
+                    .foregroundColor(.purple)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("AI Launch Strategy")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                    
+                    Text("Get personalized launch advice")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+            }
+            
+            Text("Our AI analyzes your app, market, and competition to create a custom launch strategy with specific tactics and timelines.")
+                .font(.body)
+                .foregroundColor(.secondary)
+            
+            if appState.isGeneratingStrategy {
+                HStack {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                    Text("Generating strategy...")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            } else {
+                Button(action: {
+                    if let project = appState.currentProject {
+                        appState.generateLaunchStrategy(for: project)
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "sparkles")
+                        Text("Generate Strategy")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(
+                            colors: [.purple, .blue],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(16)
+        .padding(.horizontal)
+    }
+}
+
+// MARK: - Recent Community Card
+struct RecentCommunityCard: View {
+    @EnvironmentObject var appState: AppState
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Community Highlights")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+                
+                Button(action: {}) {
+                    Text("See All")
+                        .font(.subheadline)
+                        .foregroundColor(.blue)
+                }
+            }
+            
+            if appState.communityPosts.isEmpty {
+                VStack(spacing: 8) {
+                    Text("No community posts yet")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Text("Be the first to share your launch journey!")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+            } else {
+                ForEach(appState.communityPosts.prefix(2)) { post in
+                    CommunityPostRow(post: post, isCompact: true)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(16)
+        .padding(.horizontal)
+    }
+}
+
+// MARK: - Projects View
+struct ProjectsView: View {
+    @EnvironmentObject var appState: AppState
+    
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(appState.projects) { project in
+                    NavigationLink(destination: ProjectDetailView(project: project)) {
+                        ProjectRow(project: project)
+                    }
+                }
+                .onDelete(perform: deleteProjects)
+            }
+            .navigationTitle("Projects")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { appState.showingNewProject = true }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+        }
+    }
+    
+    func deleteProjects(offsets: IndexSet) {
+        appState.projects.remove(atOffsets: offsets)
+        // Clear current project if it was deleted
+        if let currentProject = appState.currentProject,
+           offsets.contains(appState.projects.firstIndex(where: { $0.id == currentProject.id }) ?? -1) {
+            appState.currentProject = appState.projects.first
+        }
+    }
+}
+
+// MARK: - Project Detail View
+struct ProjectDetailView: View {
+    let project: AppProject
+    @EnvironmentObject var appState: AppState
+    @State private var showingNewTask = false
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                // Project Header
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: project.category.icon)
+                            .font(.title)
+                            .foregroundColor(project.category.color)
+                            .frame(width: 50, height: 50)
+                            .background(project.category.color.opacity(0.1))
+                            .cornerRadius(12)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(project.name)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            Text(project.category.rawValue)
+                                .font(.subheadline)
+                                .foregroundColor(project.category.color)
+                        }
+                        
+                        Spacer()
+                        
+                        Button("Set as Current") {
+                            appState.currentProject = project
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    
+                    Text(project.description)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                    
+                    // Stats Row
+                    HStack(spacing: 20) {
+                        VStack {
+                            Text("$\(Int(project.revenue))")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.green)
+                            Text("Revenue")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        VStack {
+                            Text("\(project.downloads)")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
+                            Text("Downloads")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        VStack {
+                            Text(project.currentPhase.rawValue)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(project.currentPhase.color)
+                            Text("Phase")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        VStack {
+                            Text("\(daysUntilLaunch)")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                            Text("Days Left")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                    }
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(16)
+                
+                // Action Buttons
+                HStack(spacing: 12) {
+                    Button(action: {
+                        appState.currentProject = project
+                        appState.generateLaunchStrategy(for: project)
+                    }) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                            Text("AI Strategy")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.purple)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                    .disabled(appState.isGeneratingStrategy)
+                    
+                    Button(action: { showingNewTask = true }) {
+                        HStack {
+                            Image(systemName: "plus")
+                            Text("Add Task")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                }
+                
+                // Tasks Section
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        Text("Launch Tasks")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        Text("\(completedTasksCount)/\(totalTasksCount)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    if projectTasks.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "checklist")
+                                .font(.system(size: 40))
+                                .foregroundColor(.secondary)
+                            
+                            Text("No tasks yet")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            
+                            Text("Generate an AI strategy or add tasks manually to get started")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 40)
+                    } else {
+                        ForEach(projectTasks.indices, id: \.self) { index in
+                            ProjectTaskRow(
+                                task: projectTasks[index],
+                                onToggle: {
+                                    toggleTask(at: index)
+                                },
+                                onDelete: {
+                                    deleteTask(at: index)
+                                }
+                            )
+                        }
+                    }
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(16)
+            }
+            .padding()
+        }
+        .navigationTitle("Project Details")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingNewTask) {
+            NewTaskView(projectId: project.id)
+        }
+    }
+    
+    private var projectTasks: [LaunchTask] {
+        if let projectIndex = appState.projects.firstIndex(where: { $0.id == project.id }) {
+            return appState.projects[projectIndex].tasks
+        }
+        return []
+    }
+    
+    private var totalTasksCount: Int {
+        projectTasks.count
+    }
+    
+    private var completedTasksCount: Int {
+        projectTasks.filter { $0.isCompleted }.count
+    }
+    
+    private var daysUntilLaunch: Int {
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.day], from: now, to: project.targetLaunchDate)
+        return max(0, components.day ?? 0)
+    }
+    
+    private func toggleTask(at index: Int) {
+        if let projectIndex = appState.projects.firstIndex(where: { $0.id == project.id }) {
+            appState.projects[projectIndex].tasks[index].isCompleted.toggle()
+        }
+    }
+    
+    private func deleteTask(at index: Int) {
+        if let projectIndex = appState.projects.firstIndex(where: { $0.id == project.id }) {
+            appState.projects[projectIndex].tasks.remove(at: index)
+        }
+    }
+}
+
+// MARK: - Project Task Row
+struct ProjectTaskRow: View {
+    let task: LaunchTask
+    let onToggle: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: onToggle) {
+                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
+                    .foregroundColor(task.isCompleted ? .green : .gray)
+            }
+            .buttonStyle(.plain)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(task.title)
+                    .font(.headline)
+                    .strikethrough(task.isCompleted)
+                    .foregroundColor(task.isCompleted ? .secondary : .primary)
+                
+                if !task.description.isEmpty {
+                    Text(task.description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+                
+                HStack {
+                    Text(task.priority.rawValue)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(task.priority.color.opacity(0.2))
+                        .foregroundColor(task.priority.color)
+                        .cornerRadius(4)
+                    
+                    Text(task.category)
+                        .font(.caption)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.blue.opacity(0.1))
+                        .foregroundColor(.blue)
+                        .cornerRadius(4)
+                    
+                    if let dueDate = task.dueDate {
+                        Text(dueDate.formatted(date: .abbreviated, time: .omitted))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(Color(.systemBackground))
+        .cornerRadius(8)
+    }
+}
+
+// MARK: - Project Row
+struct ProjectRow: View {
+    let project: AppProject
+    
+    var body: some View {
+        HStack {
+            // Category Icon
+            Image(systemName: project.category.icon)
+                .font(.title2)
+                .foregroundColor(project.category.color)
+                .frame(width: 40, height: 40)
+                .background(project.category.color.opacity(0.1))
+                .cornerRadius(8)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(project.name)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Text(project.category.rawValue)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                Text(project.currentPhase.rawValue)
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+                    .background(project.currentPhase.color.opacity(0.2))
+                    .foregroundColor(project.currentPhase.color)
+                    .cornerRadius(4)
+            }
+            
+            Spacer()
+            
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("$\(Int(project.revenue))")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.green)
+                
+                Text("\(project.downloads) downloads")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+// MARK: - Community View
+struct CommunityView: View {
+    @EnvironmentObject var appState: AppState
+    @State private var showingNewPost = false
+    
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(appState.communityPosts) { post in
+                    CommunityPostRow(post: post, isCompact: false)
+                }
+            }
+            .navigationTitle("Community")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showingNewPost = true }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingNewPost) {
+            NewPostView()
+        }
+    }
+}
+
+// MARK: - Community Post Row
+struct CommunityPostRow: View {
+    let post: CommunityPost
+    let isCompact: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(post.author)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                if post.isLaunchAnnouncement {
+                    Text("🚀 LAUNCHED")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.green.opacity(0.2))
+                        .foregroundColor(.green)
+                        .cornerRadius(4)
+                }
+                
+                Spacer()
+                
+                Text(timeAgo(from: post.timestamp))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Text(post.content)
+                .font(.body)
+                .lineLimit(isCompact ? 3 : nil)
+            
+            HStack {
+                Label(post.appName, systemImage: post.category.icon)
+                    .font(.subheadline)
+                    .foregroundColor(post.category.color)
+                
+                Spacer()
+                
+                Button(action: {}) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "heart")
+                        Text("\(post.likes)")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding(.vertical, isCompact ? 8 : 12)
+    }
+    
+    private func timeAgo(from date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+}
+
+// MARK: - Analytics View
+struct AnalyticsView: View {
+    @EnvironmentObject var appState: AppState
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                LazyVStack(spacing: 20) {
+                    if let project = appState.currentProject {
+                        // Revenue Chart
+                        AnalyticsCard(
+                            title: "Revenue Trend",
+                            icon: "chart.line.uptrend.xyaxis",
+                            color: .green
+                        ) {
+                            RevenueChartView(project: project)
+                        }
+                        
+                        // Downloads Chart
+                        AnalyticsCard(
+                            title: "Downloads",
+                            icon: "arrow.down.circle",
+                            color: .blue
+                        ) {
+                            DownloadsChartView(project: project)
+                        }
+                        
+                        // Key Metrics
+                        AnalyticsCard(
+                            title: "Key Metrics",
+                            icon: "speedometer",
+                            color: .orange
+                        ) {
+                            KeyMetricsView(project: project)
+                        }
+                    } else {
+                        VStack(spacing: 16) {
+                            Image(systemName: "chart.bar.doc.horizontal")
+                                .font(.system(size: 60))
+                                .foregroundColor(.secondary)
+                            
+                            Text("No Project Selected")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            
+                            Text("Select a project to view analytics")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            
+                            Button("Create Project") {
+                                appState.showingNewProject = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                        .padding()
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("Analytics")
+        }
+    }
+}
+
+// MARK: - Analytics Card
+struct AnalyticsCard<Content: View>: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let content: Content
+    
+    init(title: String, icon: String, color: Color, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.icon = icon
+        self.color = color
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundColor(color)
+                
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+            }
+            
+            content
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(16)
+    }
+}
+
+// MARK: - Chart Views
+struct RevenueChartView: View {
+    let project: AppProject
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("$\(Int(project.revenue))")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.green)
+            
+            Text("Total Revenue")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            // Simple mock chart
+            RoundedRectangle(cornerRadius: 4)
+                .fill(LinearGradient(colors: [.green.opacity(0.3), .green.opacity(0.1)], startPoint: .top, endPoint: .bottom))
+                .frame(height: 100)
+                .overlay(
+                    Text("📈 Growing steadily")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                )
+        }
+    }
+}
+
+struct DownloadsChartView: View {
+    let project: AppProject
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("\(project.downloads)")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.blue)
+            
+            Text("Total Downloads")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            // Simple mock chart
+            RoundedRectangle(cornerRadius: 4)
+                .fill(LinearGradient(colors: [.blue.opacity(0.3), .blue.opacity(0.1)], startPoint: .top, endPoint: .bottom))
+                .frame(height: 100)
+                .overlay(
+                    Text("📱 Solid traction")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                )
+        }
+    }
+}
+
+struct KeyMetricsView: View {
+    let project: AppProject
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            MetricRow(title: "Conversion Rate", value: "3.2%", color: .green)
+            MetricRow(title: "Retention (Day 7)", value: "68%", color: .blue)
+            MetricRow(title: "App Store Rating", value: "4.6★", color: .orange)
+            MetricRow(title: "Monthly Growth", value: "+12%", color: .purple)
+        }
+    }
+}
+
+struct MetricRow: View {
+    let title: String
+    let value: String
+    let color: Color
+    
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(color)
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+// MARK: - New Project View
+struct NewProjectView: View {
+    @EnvironmentObject var appState: AppState
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var name = ""
+    @State private var description = ""
+    @State private var selectedCategory = AppCategory.productivity
+    @State private var targetLaunchDate = Date().addingTimeInterval(60 * 60 * 24 * 30) // 30 days from now
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Basic Information")) {
+                    TextField("App Name", text: $name)
+                    
+                    TextField("Description", text: $description, axis: .vertical)
+                        .lineLimit(3...6)
+                }
+                
+                Section(header: Text("Category")) {
+                    Picker("Category", selection: $selectedCategory) {
+                        ForEach(AppCategory.allCases, id: \.self) { category in
+                            Label(category.rawValue, systemImage: category.icon)
+                                .tag(category)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                
+                Section(header: Text("Timeline")) {
+                    DatePicker("Target Launch Date", selection: $targetLaunchDate, displayedComponents: .date)
+                }
+                
+                Section {
+                    Button(action: createProject) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Create Project")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(name.isEmpty || description.isEmpty)
+                }
+            }
+            .navigationTitle("New Project")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func createProject() {
+        let project = AppProject(
+            name: name,
+            category: selectedCategory,
+            description: description,
+            targetLaunchDate: targetLaunchDate
+        )
+        
+        appState.addProject(project)
+        dismiss()
+    }
+}
+
+// MARK: - AI Strategy View
+struct AIStrategyView: View {
+    @EnvironmentObject var appState: AppState
+    @Environment(\.dismiss) private var dismiss
+    @State private var showingTasksAdded = false
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                if let strategy = appState.currentStrategy {
+                    LazyVStack(alignment: .leading, spacing: 20) {
+                        // Header
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Image(systemName: "sparkles")
+                                    .font(.title2)
+                                    .foregroundColor(.purple)
+                                
+                                Text("AI Launch Strategy")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                            }
+                            
+                            if let projectName = appState.currentProject?.name {
+                                Text("Personalized recommendations for \(projectName)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.horizontal)
+                        
+                        // Success banner
+                        if showingTasksAdded {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                Text("Tasks added successfully! Go to Projects tab to view them.")
+                                    .font(.subheadline)
+                                Spacer()
+                                Button("Dismiss") {
+                                    showingTasksAdded = false
+                                }
+                                .font(.caption)
+                            }
+                            .padding()
+                            .background(Color.green.opacity(0.1))
+                            .cornerRadius(8)
+                            .padding(.horizontal)
+                        }
+                        
+                        // Marketing Tactics
+                        StrategySection(
+                            title: "Marketing Tactics",
+                            icon: "megaphone.fill",
+                            color: .blue,
+                            items: strategy.marketingTactics
+                        )
+                        
+                        // Pricing Strategy
+                        StrategySingleSection(
+                            title: "Pricing Strategy",
+                            icon: "dollarsign.circle.fill",
+                            color: .green,
+                            content: strategy.pricingStrategy
+                        )
+                        
+                        // Timeline
+                        StrategySection(
+                            title: "Launch Timeline",
+                            icon: "calendar",
+                            color: .orange,
+                            items: strategy.timeline
+                        )
+                        
+                        // Key Metrics
+                        StrategySection(
+                            title: "Key Metrics to Track",
+                            icon: "chart.bar.fill",
+                            color: .purple,
+                            items: strategy.keyMetrics
+                        )
+                        
+                        // Competitor Analysis
+                        StrategySingleSection(
+                            title: "Competitor Analysis",
+                            icon: "eye.fill",
+                            color: .indigo,
+                            content: strategy.competitorAnalysis
+                        )
+                        
+                        // Risk Factors
+                        StrategySection(
+                            title: "Risk Factors",
+                            icon: "exclamationmark.triangle.fill",
+                            color: .red,
+                            items: strategy.riskFactors
+                        )
+                        
+                        // Action Buttons
+                        HStack(spacing: 12) {
+                            Button(action: {
+                                if let currentProject = appState.currentProject {
+                                    appState.addTasksFromStrategy(strategy, for: currentProject.name)
+                                    showingTasksAdded = true
+                                }
+                            }) {
+                                HStack {
+                                    Image(systemName: "plus.circle.fill")
+                                    Text("Add to Tasks")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                            }
+                            
+                            Button(action: {
+                                dismiss()
+                            }) {
+                                HStack {
+                                    Image(systemName: "folder.fill")
+                                    Text("View in Projects")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.top)
+                    }
+                } else {
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                        
+                        Text("Generating your personalized launch strategy...")
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Strategy Section Views
+struct StrategySection: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let items: [String]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(color)
+                
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+            }
+            
+            ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                HStack(alignment: .top, spacing: 12) {
+                    Text("\(index + 1)")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .frame(width: 20, height: 20)
+                        .background(color)
+                        .clipShape(Circle())
+                    
+                    Text(item)
+                        .font(.body)
+                        .multilineTextAlignment(.leading)
+                    
+                    Spacer()
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+        .padding(.horizontal)
+    }
+}
+
+struct StrategySingleSection: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let content: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(color)
+                
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+            }
+            
+            Text(content)
+                .font(.body)
+                .multilineTextAlignment(.leading)
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+        .padding(.horizontal)
+    }
+}
+
+// MARK: - New Task View
+struct NewTaskView: View {
+    let projectId: UUID
+    @EnvironmentObject var appState: AppState
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var title = ""
+    @State private var description = ""
+    @State private var selectedPriority = LaunchTask.TaskPriority.medium
+    @State private var category = "Marketing"
+    @State private var hasDueDate = false
+    @State private var dueDate = Date().addingTimeInterval(7 * 24 * 60 * 60) // 1 week from now
+    
+    private let categories = ["Marketing", "Development", "Testing", "Design", "Legal", "Analytics", "Community"]
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Task Details")) {
+                    TextField("Task Title", text: $title)
+                    
+                    TextField("Description (optional)", text: $description, axis: .vertical)
+                        .lineLimit(3...6)
+                    
+                    Picker("Priority", selection: $selectedPriority) {
+                        ForEach(LaunchTask.TaskPriority.allCases, id: \.self) { priority in
+                            HStack {
+                                Circle()
+                                    .fill(priority.color)
+                                    .frame(width: 8, height: 8)
+                                Text(priority.rawValue)
+                            }
+                            .tag(priority)
+                        }
+                    }
+                    
+                    Picker("Category", selection: $category) {
+                        ForEach(categories, id: \.self) { cat in
+                            Text(cat).tag(cat)
+                        }
+                    }
+                }
+                
+                Section(header: Text("Due Date")) {
+                    Toggle("Set Due Date", isOn: $hasDueDate)
+                    
+                    if hasDueDate {
+                        DatePicker("Due Date", selection: $dueDate, displayedComponents: .date)
+                    }
+                }
+                
+                Section {
+                    Button(action: createTask) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Create Task")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(title.isEmpty)
+                }
+            }
+            .navigationTitle("New Task")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func createTask() {
+        let task = LaunchTask(
+            title: title,
+            description: description,
+            isCompleted: false,
+            priority: selectedPriority,
+            dueDate: hasDueDate ? dueDate : nil,
+            category: category
+        )
+        
+        // Find the project and add the task
+        if let projectIndex = appState.projects.firstIndex(where: { $0.id == projectId }) {
+            appState.projects[projectIndex].tasks.append(task)
+            print("✅ Added task '\(title)' to project '\(appState.projects[projectIndex].name)'")
+        }
+        
+        dismiss()
+    }
+}
+
+// MARK: - New Post View
+struct NewPostView: View {
+    @EnvironmentObject var appState: AppState
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var content = ""
+    @State private var appName = ""
+    @State private var selectedCategory = AppCategory.productivity
+    @State private var isLaunchAnnouncement = false
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Post Details")) {
+                    TextField("What's on your mind?", text: $content, axis: .vertical)
+                        .lineLimit(3...10)
+                    
+                    TextField("App Name (optional)", text: $appName)
+                    
+                    Picker("Category", selection: $selectedCategory) {
+                        ForEach(AppCategory.allCases, id: \.self) { category in
+                            Label(category.rawValue, systemImage: category.icon)
+                                .tag(category)
+                        }
+                    }
+                    
+                    Toggle("Launch Announcement", isOn: $isLaunchAnnouncement)
+                }
+                
+                Section {
+                    Button(action: createPost) {
+                        HStack {
+                            Image(systemName: "paperplane.fill")
+                            Text("Post to Community")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(content.isEmpty)
+                }
+            }
+            .navigationTitle("New Post")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func createPost() {
+        let post = CommunityPost(
+            author: "You", // In a real app, this would be the current user
+            content: content,
+            timestamp: Date(),
+            likes: 0,
+            appName: appName.isEmpty ? "My App" : appName,
+            category: selectedCategory,
+            isLaunchAnnouncement: isLaunchAnnouncement
+        )
+        
+        appState.communityPosts.insert(post, at: 0)
+        dismiss()
+    }
+}
+
+// MARK: - Custom Styles and Extensions
+extension Color {
+    static let shipMateBlue = Color(red: 0.0, green: 0.48, blue: 1.0)
+    static let shipMatePurple = Color(red: 0.5, green: 0.0, blue: 1.0)
+}
+
+// MARK: - Preview Support
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .environmentObject(AppState())
+    }
+}
+    import SwiftUI
+import Foundation
+import Combine
+
+// MARK: - App Entry Point
+
+
+// MARK: - Models
+struct AppProject: Identifiable, Codable {
+    let id = UUID()
+    var name: String
+    var category: AppCategory
+    var description: String
+    var targetLaunchDate: Date
+    var currentPhase: LaunchPhase
+    var revenue: Double
+    var downloads: Int
+    var tasks: [LaunchTask]
+    var createdAt: Date
+    
+    init(name: String, category: AppCategory, description: String, targetLaunchDate: Date) {
+        self.name = name
+        self.category = category
+        self.description = description
+        self.targetLaunchDate = targetLaunchDate
+        self.currentPhase = .planning
+        self.revenue = 0
+        self.downloads = 0
+        self.tasks = []
+        self.createdAt = Date()
+    }
+}
+
+enum AppCategory: String, CaseIterable, Codable {
+    case productivity = "Productivity"
+    case games = "Games"
+    case social = "Social"
+    case health = "Health & Fitness"
+    case education = "Education"
+    case business = "Business"
+    case entertainment = "Entertainment"
+    case utilities = "Utilities"
+    
+    var icon: String {
+        switch self {
+        case .productivity: return "checkmark.circle.fill"
+        case .games: return "gamecontroller.fill"
+        case .social: return "person.3.fill"
+        case .health: return "heart.fill"
+        case .education: return "book.fill"
+        case .business: return "briefcase.fill"
+        case .entertainment: return "play.circle.fill"
+        case .utilities: return "wrench.and.screwdriver.fill"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .productivity: return .blue
+        case .games: return .purple
+        case .social: return .pink
+        case .health: return .red
+        case .education: return .orange
+        case .business: return .green
+        case .entertainment: return .yellow
+        case .utilities: return .gray
+        }
+    }
+}
+
+enum LaunchPhase: String, CaseIterable, Codable {
+    case planning = "Planning"
+    case development = "Development"
+    case testing = "Testing"
+    case prelaunch = "Pre-Launch"
+    case launched = "Launched"
+    case growth = "Growth"
+    
+    var progress: Double {
+        switch self {
+        case .planning: return 0.1
+        case .development: return 0.3
+        case .testing: return 0.5
+        case .prelaunch: return 0.8
+        case .launched: return 1.0
+        case .growth: return 1.0
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .planning: return .orange
+        case .development: return .blue
+        case .testing: return .purple
+        case .prelaunch: return .yellow
+        case .launched: return .green
+        case .growth: return .mint
+        }
+    }
+}
+
+struct LaunchTask: Identifiable, Codable {
+    let id = UUID()
+    var title: String
+    var description: String
+    var isCompleted: Bool
+    var priority: TaskPriority
+    var dueDate: Date?
+    var category: String
+    
+    enum TaskPriority: String, CaseIterable, Codable {
+        case low = "Low"
+        case medium = "Medium"
+        case high = "High"
+        case critical = "Critical"
+        
+        var color: Color {
+            switch self {
+            case .low: return .gray
+            case .medium: return .blue
+            case .high: return .orange
+            case .critical: return .red
+            }
+        }
+    }
+}
+
+struct LaunchStrategy: Codable {
+    let id = UUID()
+    let appCategory: AppCategory
+    let marketingTactics: [String]
+    let pricingStrategy: String
+    let timeline: [String]
+    let keyMetrics: [String]
+    let competitorAnalysis: String
+    let riskFactors: [String]
+}
+
+struct CommunityPost: Identifiable, Codable {
+    let id = UUID()
+    let author: String
+    let content: String
+    let timestamp: Date
+    let likes: Int
+    let appName: String
+    let category: AppCategory
+    let isLaunchAnnouncement: Bool
+}
+
+// MARK: - App State
+class AppState: ObservableObject {
+    @Published var projects: [AppProject] = []
+    @Published var currentProject: AppProject?
+    @Published var showingNewProject = false
+    @Published var showingAIStrategy = false
+    @Published var communityPosts: [CommunityPost] = []
+    @Published var isGeneratingStrategy = false
+    @Published var currentStrategy: LaunchStrategy?
+    @Published var hasSeenOnboarding = false
+    
+    private let geminiService = GeminiAIService()
+    
+    init() {
+        loadSampleCommunityPosts()
+    }
+    
+    func addProject(_ project: AppProject) {
+        projects.append(project)
+        currentProject = project
+    }
+    
+    func generateLaunchStrategy(for project: AppProject) {
+        isGeneratingStrategy = true
+        
+        Task {
+            do {
+                let strategy = try await geminiService.generateLaunchStrategy(for: project)
+                DispatchQueue.main.async {
+                    self.currentStrategy = strategy
+                    self.isGeneratingStrategy = false
+                    self.showingAIStrategy = true
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.isGeneratingStrategy = false
+                    print("Error generating strategy: \(error)")
+                }
+            }
+        }
+    }
+    
+    func addTasksFromStrategy(_ strategy: LaunchStrategy, for projectName: String) {
+        guard let projectIndex = projects.firstIndex(where: { $0.name == projectName }) else {
+            print("❌ Project not found: \(projectName)")
+            return
+        }
+        
+        var newTasks: [LaunchTask] = []
+        
+        // Add marketing tasks
+        for (index, tactic) in strategy.marketingTactics.enumerated() {
+            let task = LaunchTask(
+                title: "Marketing: \(String(tactic.prefix(40)))",
+                description: tactic,
+                isCompleted: false,
+                priority: index < 2 ? .high : .medium,
+                dueDate: Calendar.current.date(byAdding: .day, value: -14 + (index * 3), to: projects[projectIndex].targetLaunchDate),
+                category: "Marketing"
+            )
+            newTasks.append(task)
+        }
+        
+        // Add timeline tasks
+        for (index, timelineItem) in strategy.timeline.enumerated() {
+            let task = LaunchTask(
+                title: "Timeline: \(String(timelineItem.prefix(40)))",
+                description: timelineItem,
+                isCompleted: false,
+                priority: .high,
+                dueDate: Calendar.current.date(byAdding: .day, value: -28 + (index * 7), to: projects[projectIndex].targetLaunchDate),
+                category: "Timeline"
+            )
+            newTasks.append(task)
+        }
+        
+        // Add a pricing task
+        let pricingTask = LaunchTask(
+            title: "Implement Pricing Strategy",
+            description: strategy.pricingStrategy,
+            isCompleted: false,
+            priority: .critical,
+            dueDate: Calendar.current.date(byAdding: .day, value: -21, to: projects[projectIndex].targetLaunchDate),
+            category: "Business"
+        )
+        newTasks.append(pricingTask)
+        
+        // Add analytics setup tasks
+        for metric in strategy.keyMetrics {
+            let task = LaunchTask(
+                title: "Setup: \(String(metric.prefix(30)))",
+                description: "Implement tracking for: \(metric)",
+                isCompleted: false,
+                priority: .medium,
+                dueDate: Calendar.current.date(byAdding: .day, value: -10, to: projects[projectIndex].targetLaunchDate),
+                category: "Analytics"
+            )
+            newTasks.append(task)
+        }
+        
+        // Actually add the tasks to the project
+        projects[projectIndex].tasks.append(contentsOf: newTasks)
+        
+        // Force UI update
+        objectWillChange.send()
+        
+        print("✅ Added \(newTasks.count) tasks from AI strategy to \(projectName)")
+        print("📋 Project now has \(projects[projectIndex].tasks.count) total tasks")
+    }
+    
+    func completeOnboarding() {
+        hasSeenOnboarding = true
+    }
+    
+    private func loadSampleCommunityPosts() {
+        communityPosts = [
+            CommunityPost(
+                author: "Alex Chen",
+                content: "Just launched my productivity app after 8 months of development! Already got 1,000 downloads in the first day. The key was building a solid MVP and getting early user feedback.",
+                timestamp: Date().addingTimeInterval(-3600),
+                likes: 24,
+                appName: "TaskFlow",
+                category: .productivity,
+                isLaunchAnnouncement: true
+            ),
+            CommunityPost(
+                author: "Sarah Kim",
+                content: "Working on pricing strategy for my health app. Thinking between freemium and $4.99 one-time purchase. What's worked for you all?",
+                timestamp: Date().addingTimeInterval(-7200),
+                likes: 12,
+                appName: "HealthTracker Pro",
+                category: .health,
+                isLaunchAnnouncement: false
+            )
+        ]
+    }
+}
+
+// MARK: - Gemini AI Service
+class GeminiAIService: ObservableObject {
+    private let apiKey = "AIzaSyA2b4ObUX2rkIeHLlessAGRi6F0GBSi65k"
+    private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    
+    func generateLaunchStrategy(for project: AppProject) async throws -> LaunchStrategy {
+        print("🚀 Starting Gemini AI strategy generation for: \(project.name)")
+        
+        guard !apiKey.isEmpty else {
+            print("⚠️ Gemini API key not set, using fallback")
+            return generateFallbackStrategy(for: project)
+        }
+        
+        let daysUntilLaunch = Calendar.current.dateComponents([.day], from: Date(), to: project.targetLaunchDate).day ?? 30
+        
+        let prompt = """
+        You are an expert app launch consultant. Create a PERSONALIZED launch strategy for this specific app:
+        
+        APP DETAILS:
+        - Name: \(project.name)
+        - Category: \(project.category.rawValue)
+        - Description: \(project.description)
+        - Days until launch: \(daysUntilLaunch) days
+        - Target launch date: \(project.targetLaunchDate.formatted(date: .abbreviated, time: .omitted))
+        
+        IMPORTANT: Make this strategy SPECIFIC to this app and timeline. Don't give generic advice.
+        
+        Provide a detailed strategy in this EXACT format:
+        
+        MARKETING TACTICS:
+        1. [Specific tactic for \(project.name) in \(project.category.rawValue)]
+        2. [Another specific tactic considering \(daysUntilLaunch) days timeline]
+        3. [Tactic specific to the app description: \(project.description)]
+        4. [Category-specific marketing for \(project.category.rawValue) apps]
+        5. [Timeline-specific urgent action for \(daysUntilLaunch) days]
+        6. [Another specific marketing approach]
+        
+        PRICING STRATEGY:
+        [Specific pricing recommendation for \(project.category.rawValue) category, considering the app does: \(project.description)]
+        
+        TIMELINE:
+        [Create specific timeline based on \(daysUntilLaunch) days until launch. If less than 30 days, focus on urgent pre-launch tasks. If more than 60 days, include early preparation phases.]
+        1. [Week-specific milestone based on actual timeline]
+        2. [Another timeline item specific to \(daysUntilLaunch) days remaining]
+        3. [Timeline item specific to \(project.category.rawValue) apps]
+        4. [Another milestone considering the app description]
+        5. [Final pre-launch specific to this timeline]
+        
+        KEY METRICS:
+        1. [Metric specific to \(project.category.rawValue) category]
+        2. [Metric relevant to: \(project.description)]
+        3. [Another category-specific metric]
+        4. [Timeline-sensitive metric for \(daysUntilLaunch) days launch window]
+        
+        COMPETITOR ANALYSIS:
+        [Specific analysis for \(project.category.rawValue) category mentioning what \(project.name) should focus on given it does: \(project.description)]
+        
+        RISK FACTORS:
+        1. [Risk specific to \(project.category.rawValue) category]
+        2. [Risk related to \(daysUntilLaunch) days timeline - if short timeline, mention rushed launch risks]
+        3. [Risk specific to this type of app: \(project.description)]
+        
+        Make every recommendation ACTIONABLE and SPECIFIC to this exact app and timeline.
+        """
+        
+        let requestBody: [String: Any] = [
+            "contents": [
+                [
+                    "parts": [
+                        ["text": prompt]
+                    ]
+                ]
+            ],
+            "generationConfig": [
+                "temperature": 0.7,
+                "topK": 40,
+                "topP": 0.95,
+                "maxOutputTokens": 2048
+            ]
+        ]
+        
+        do {
+            guard let url = URL(string: "\(baseURL)?key=\(apiKey)") else {
+                print("❌ Invalid URL")
+                throw APIError.invalidURL
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+            request.httpBody = jsonData
+            
+            print("📡 Making API call to Gemini...")
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("📊 HTTP Status Code: \(httpResponse.statusCode)")
+                
+                if httpResponse.statusCode != 200 {
+                    let responseString = String(data: data, encoding: .utf8) ?? "No response data"
+                    print("❌ Gemini API Error Response: \(responseString)")
+                    return generateFallbackStrategy(for: project)
+                }
+            }
+            
+            struct GeminiResponse: Codable {
+                let candidates: [Candidate]
+                
+                struct Candidate: Codable {
+                    let content: Content
+                    
+                    struct Content: Codable {
+                        let parts: [Part]
+                        
+                        struct Part: Codable {
+                            let text: String
+                        }
+                    }
+                }
+            }
+            
+            print("🔍 Parsing Gemini response...")
+            let geminiResponse = try JSONDecoder().decode(GeminiResponse.self, from: data)
+            
+            guard let aiContent = geminiResponse.candidates.first?.content.parts.first?.text else {
+                print("⚠️ No content in Gemini response")
+                return generateFallbackStrategy(for: project)
+            }
+            
+            print("✅ Successfully received Gemini response")
+            return parseAIResponse(aiContent, for: project)
+            
+        } catch {
+            print("❌ Network Error: \(error)")
+            return generateFallbackStrategy(for: project)
+        }
+    }
+    
+    private func parseAIResponse(_ content: String, for project: AppProject) -> LaunchStrategy {
+        print("🔍 Parsing AI response into structured strategy...")
+        
+        let lines = content.components(separatedBy: .newlines)
+        
+        var marketingTactics: [String] = []
+        var pricingStrategy = ""
+        var timeline: [String] = []
+        var keyMetrics: [String] = []
+        var competitorAnalysis = ""
+        var riskFactors: [String] = []
+        
+        var currentSection = ""
+        var currentText = ""
+        
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            if trimmedLine.uppercased().contains("MARKETING TACTICS") {
+                if !currentText.isEmpty && currentSection == "competitor" {
+                    competitorAnalysis = currentText.trimmingCharacters(in: .whitespaces)
+                    currentText = ""
+                }
+                currentSection = "marketing"
+            } else if trimmedLine.uppercased().contains("PRICING STRATEGY") {
+                currentSection = "pricing"
+                currentText = ""
+            } else if trimmedLine.uppercased().contains("TIMELINE") {
+                if !currentText.isEmpty && currentSection == "pricing" {
+                    pricingStrategy = currentText.trimmingCharacters(in: .whitespaces)
+                    currentText = ""
+                }
+                currentSection = "timeline"
+            } else if trimmedLine.uppercased().contains("KEY METRICS") {
+                currentSection = "metrics"
+            } else if trimmedLine.uppercased().contains("COMPETITOR ANALYSIS") {
+                currentSection = "competitor"
+                currentText = ""
+            } else if trimmedLine.uppercased().contains("RISK FACTORS") {
+                if !currentText.isEmpty && currentSection == "competitor" {
+                    competitorAnalysis = currentText.trimmingCharacters(in: .whitespaces)
+                    currentText = ""
+                }
+                currentSection = "risks"
+            } else if !trimmedLine.isEmpty {
+                switch currentSection {
+                case "marketing":
+                    if trimmedLine.hasPrefix("1.") || trimmedLine.hasPrefix("2.") || trimmedLine.hasPrefix("3.") ||
+                       trimmedLine.hasPrefix("4.") || trimmedLine.hasPrefix("5.") || trimmedLine.hasPrefix("6.") {
+                        let cleaned = String(trimmedLine.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+                        if !cleaned.isEmpty {
+                            marketingTactics.append(cleaned)
+                        }
+                    }
+                case "pricing":
+                    if !trimmedLine.hasPrefix("1.") && !trimmedLine.contains(":") {
+                        currentText += trimmedLine + " "
+                    }
+                case "timeline":
+                    if trimmedLine.hasPrefix("1.") || trimmedLine.hasPrefix("2.") || trimmedLine.hasPrefix("3.") ||
+                       trimmedLine.hasPrefix("4.") || trimmedLine.hasPrefix("5.") {
+                        let cleaned = String(trimmedLine.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+                        if !cleaned.isEmpty {
+                            timeline.append(cleaned)
+                        }
+                    }
+                case "metrics":
+                    if trimmedLine.hasPrefix("1.") || trimmedLine.hasPrefix("2.") || trimmedLine.hasPrefix("3.") ||
+                       trimmedLine.hasPrefix("4.") {
+                        let cleaned = String(trimmedLine.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+                        if !cleaned.isEmpty {
+                            keyMetrics.append(cleaned)
+                        }
+                    }
+                case "competitor":
+                    if !trimmedLine.hasPrefix("1.") && !trimmedLine.contains(":") {
+                        currentText += trimmedLine + " "
+                    }
+                case "risks":
+                    if trimmedLine.hasPrefix("1.") || trimmedLine.hasPrefix("2.") || trimmedLine.hasPrefix("3.") {
+                        let cleaned = String(trimmedLine.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+                        if !cleaned.isEmpty {
+                            riskFactors.append(cleaned)
+                        }
+                    }
+                default:
+                    break
+                }
+            }
+        }
+        
+        if !currentText.isEmpty {
+            if currentSection == "pricing" {
+                pricingStrategy = currentText.trimmingCharacters(in: .whitespaces)
+            } else if currentSection == "competitor" {
+                competitorAnalysis = currentText.trimmingCharacters(in: .whitespaces)
+            }
+        }
+        
+        // Use fallbacks if parsing failed
+        if marketingTactics.isEmpty {
+            marketingTactics = getFallbackMarketing(for: project.category)
+        }
+        if pricingStrategy.isEmpty {
+            pricingStrategy = getFallbackPricing(for: project.category)
+        }
+        if timeline.isEmpty {
+            timeline = getFallbackTimeline()
+        }
+        if keyMetrics.isEmpty {
+            keyMetrics = getFallbackMetrics(for: project.category)
+        }
+        if competitorAnalysis.isEmpty {
+            competitorAnalysis = getFallbackCompetitorAnalysis(for: project.category)
+        }
+        if riskFactors.isEmpty {
+            riskFactors = getFallbackRisks(for: project.category)
+        }
+        
+        print("✅ Successfully parsed strategy:")
+        print("📍 Marketing tactics: \(marketingTactics.count)")
+        print("📍 Timeline items: \(timeline.count)")
+        print("📍 Key metrics: \(keyMetrics.count)")
+        print("📍 Risk factors: \(riskFactors.count)")
+        
+        return LaunchStrategy(
+            appCategory: project.category,
+            marketingTactics: marketingTactics,
+            pricingStrategy: pricingStrategy,
+            timeline: timeline,
+            keyMetrics: keyMetrics,
+            competitorAnalysis: competitorAnalysis,
+            riskFactors: riskFactors
+        )
+    }
+    
+    // MARK: - Fallback Methods
+    private func generateFallbackStrategy(for project: AppProject) -> LaunchStrategy {
+        print("🔄 Using fallback strategy generation")
+        
+        return LaunchStrategy(
+            appCategory: project.category,
+            marketingTactics: getFallbackMarketing(for: project.category),
+            pricingStrategy: getFallbackPricing(for: project.category),
+            timeline: getFallbackTimeline(),
+            keyMetrics: getFallbackMetrics(for: project.category),
+            competitorAnalysis: getFallbackCompetitorAnalysis(for: project.category),
+            riskFactors: getFallbackRisks(for: project.category)
+        )
+    }
+    
+    private func getFallbackMarketing(for category: AppCategory) -> [String] {
+        switch category {
+        case .productivity:
+            return [
+                "Create productivity-focused content on LinkedIn and Twitter",
+                "Partner with productivity influencers and YouTubers",
+                "Submit to Product Hunt for maximum visibility",
+                "Reach out to tech bloggers and app review sites",
+                "Create demo videos showing workflow improvements",
+                "Offer free trials to enterprise customers"
+            ]
+        case .games:
+            return [
+                "Create gameplay trailers and teasers",
+                "Partner with gaming YouTubers and streamers",
+                "Submit to indie game festivals and showcases",
+                "Engage with gaming communities on Reddit and Discord",
+                "Offer beta access to gaming influencers",
+                "Create behind-the-scenes development content"
+            ]
+        case .social:
+            return [
+                "Leverage viral marketing and social media campaigns",
+                "Partner with social media influencers",
+                "Create user-generated content campaigns",
+                "Engage with existing social communities",
+                "Offer referral bonuses for user acquisition",
+                "Host live events and virtual meetups"
+            ]
+        case .health:
+            return [
+                "Partner with fitness influencers and health professionals",
+                "Create educational health and wellness content",
+                "Submit to health and fitness app directories",
+                "Collaborate with gyms and wellness centers",
+                "Offer free consultations or health assessments",
+                "Share success stories and user testimonials"
+            ]
+        case .education:
+            return [
+                "Partner with educational institutions and teachers",
+                "Create educational content and tutorials",
+                "Submit to educational app directories",
+                "Offer free access to students and educators",
+                "Collaborate with online learning platforms",
+                "Attend education technology conferences"
+            ]
+        case .business:
+            return [
+                "Create business-focused content and case studies",
+                "Partner with business influencers and consultants",
+                "Submit to business app directories",
+                "Offer free trials to business customers",
+                "Attend business and entrepreneurship events",
+                "Create ROI calculators and business tools"
+            ]
+        case .entertainment:
+            return [
+                "Create entertaining and viral content",
+                "Partner with entertainment influencers",
+                "Submit to entertainment app showcases",
+                "Engage with entertainment communities",
+                "Offer exclusive content and features",
+                "Host virtual events and contests"
+            ]
+        case .utilities:
+            return [
+                "Focus on app store optimization and keywords",
+                "Create utility-focused content and tutorials",
+                "Submit to productivity and utility app directories",
+                "Offer freemium model with premium features",
+                "Partner with tech reviewers and bloggers",
+                "Create comparison guides with competitors"
+            ]
+        }
+    }
+    
+    private func getFallbackPricing(for category: AppCategory) -> String {
+        switch category {
+        case .productivity:
+            return "Consider a freemium model with basic features free and premium features ($4.99/month or $29.99/year). Productivity users are willing to pay for tools that save time."
+        case .games:
+            return "Free-to-play with in-app purchases or premium version at $2.99-$9.99. Consider cosmetic items, level packs, or ad removal options."
+        case .social:
+            return "Free with optional premium features ($1.99-$4.99/month). Focus on user growth first, monetize later through premium social features."
+        case .health:
+            return "Freemium model with basic tracking free and advanced features at $6.99/month or $49.99/year. Health apps have high user retention and willingness to pay."
+        case .education:
+            return "Freemium or institutional pricing. Individual users $3.99/month, educational discounts, and bulk pricing for schools at $2.99/student/month."
+        case .business:
+            return "Tiered pricing starting at $9.99/month for individuals, $19.99/month for small teams, and custom enterprise pricing. Business users expect professional pricing."
+        case .entertainment:
+            return "Free with ads or premium ad-free version at $1.99-$4.99. Consider in-app purchases for additional content or features."
+        case .utilities:
+            return "One-time purchase ($0.99-$4.99) or subscription for advanced features ($1.99/month). Utility users prefer simple, affordable pricing."
+        }
+    }
+    
+    private func getFallbackTimeline() -> [String] {
+        return [
+            "Week 1-2: Finalize app store assets (screenshots, descriptions, keywords)",
+            "Week 3: Submit app for review and prepare marketing materials",
+            "Week 4: Soft launch with beta testers and gather feedback",
+            "Week 5: Official launch with press outreach and social media campaign",
+            "Week 6-8: Post-launch optimization and user feedback implementation"
+        ]
+    }
+    
+    private func getFallbackMetrics(for category: AppCategory) -> [String] {
+        let baseMetrics = [
+            "Daily Active Users (DAU)",
+            "App Store conversion rate",
+            "User retention (Day 1, 7, 30)",
+            "Average session duration"
+        ]
+        
+        switch category {
+        case .productivity:
+            return baseMetrics + ["Task completion rate", "Feature adoption rate"]
+        case .games:
+            return baseMetrics + ["Level completion rate", "In-app purchase conversion"]
+        case .social:
+            return baseMetrics + ["Social engagement rate", "User-generated content"]
+        case .health:
+            return baseMetrics + ["Goal achievement rate", "Data entry frequency"]
+        case .education:
+            return baseMetrics + ["Learning completion rate", "Quiz/test scores"]
+        case .business:
+            return baseMetrics + ["ROI metrics", "Business process efficiency"]
+        case .entertainment:
+            return baseMetrics + ["Content consumption rate", "Sharing frequency"]
+        case .utilities:
+            return baseMetrics + ["Problem resolution rate", "Feature usage frequency"]
+        }
+    }
+    
+    private func getFallbackCompetitorAnalysis(for category: AppCategory) -> String {
+        switch category {
+        case .productivity:
+            return "Analyze top productivity apps like Todoist, Notion, and Asana. Focus on unique features and simplified user experience. Differentiate through better onboarding and specific use case optimization."
+        case .games:
+            return "Study successful indie games in your genre. Focus on unique gameplay mechanics and strong visual identity. Consider what makes games addictive and engaging in your specific category."
+        case .social:
+            return "Examine social apps like Discord, Instagram, and TikTok. Focus on community building features and user engagement mechanics. Consider privacy and safety features as differentiators."
+        case .health:
+            return "Analyze health apps like MyFitnessPal, Headspace, and Apple Health. Focus on data accuracy, user motivation, and integration with health ecosystems."
+        case .education:
+            return "Study educational apps like Duolingo, Khan Academy, and Coursera. Focus on engagement mechanics, progress tracking, and adaptive learning features."
+        case .business:
+            return "Examine business tools like Slack, Zoom, and Salesforce. Focus on workflow integration, team collaboration, and enterprise-grade security features."
+        case .entertainment:
+            return "Analyze entertainment apps like Netflix, Spotify, and YouTube. Focus on content discovery, personalization algorithms, and user engagement strategies."
+        case .utilities:
+            return "Study utility apps that solve similar problems. Focus on simplicity, reliability, and solving the core problem better than existing solutions."
+        }
+    }
+    
+    private func getFallbackRisks(for category: AppCategory) -> [String] {
+        let baseRisks = [
+            "App store rejection or delays in approval process",
+            "Insufficient marketing budget leading to low visibility",
+            "Technical bugs or performance issues at launch"
+        ]
+        
+        switch category {
+        case .productivity:
+            return baseRisks + ["High competition from established productivity tools", "User adoption challenges due to workflow changes"]
+        case .games:
+            return baseRisks + ["Highly saturated gaming market", "Difficulty in user acquisition and retention"]
+        case .social:
+            return baseRisks + ["Privacy concerns and data security requirements", "Network effects needed for success"]
+        case .health:
+            return baseRisks + ["Regulatory compliance for health data", "Medical accuracy and liability concerns"]
+        case .education:
+            return baseRisks + ["Educational institution adoption cycles", "Content accuracy and educational effectiveness"]
+        case .business:
+            return baseRisks + ["Enterprise sales cycles and procurement processes", "Integration challenges with existing business tools"]
+        case .entertainment:
+            return baseRisks + ["Content licensing and copyright issues", "High user acquisition costs in entertainment"]
+        case .utilities:
+            return baseRisks + ["Regulatory compliance issues", "Infrastructure reliability and maintenance"]
+
+            }
+        }
+    }
